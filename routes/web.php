@@ -19,7 +19,8 @@ Route::middleware([
         return match ($role) {
             'admin' => redirect()->route('admin.dashboard'),
             'empresa' => redirect()->route('empresa.dashboard'),
-            default => view('dashboard'), // candidato
+            'candidato' => redirect()->route('candidato.dashboard'),
+            default => abort(403),
         };
     })->name('dashboard');
 
@@ -30,6 +31,9 @@ Route::middleware([
 
     Route::middleware('role:empresa')->group(function () {
         Route::get('/empresa', fn() => view('empresa.dashboard'))->name('empresa.dashboard');
+    });
+      Route::middleware('role:candidato')->group(function () {
+        Route::get('/candidato', fn() => view('candidato.dashboard'))->name('candidato.dashboard');
     });
 
   

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,7 +27,7 @@ Route::middleware([
 
 
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin', fn() => view('admin.dashboard'))->name('admin.dashboard');
+        Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     });
 
     Route::middleware('role:empresa')->group(function () {

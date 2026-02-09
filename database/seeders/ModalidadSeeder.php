@@ -1,8 +1,16 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
 use App\Models\Modalidad;
 
-public function run(): void
+class ModalidadSeeder extends Seeder
 {
-    foreach (['Presencial', 'Híbrido', 'Remoto'] as $m) {
-        Modalidad::firstOrCreate(['nombre' => $m]);
+    public function run(): void
+    {
+        foreach (['Presencial', 'Híbrido', 'Remoto'] as $m) {
+            Modalidad::firstOrCreate(['nombre' => $m]);
+        }
     }
 }

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\CandidatoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,7 +17,7 @@ Route::get('/empresa/register', function () {
 Route::get('/candidato/register', function () {
     $role = 'candidato';
     return view('auth.register', compact('role'));
-})->name('candidato.register'); 
+})->name('candidato.register');
 
 Route::middleware([
     'auth:sanctum',
@@ -41,9 +43,11 @@ Route::middleware([
     });
 
     Route::middleware('role:empresa')->group(function () {
-        Route::get('/empresa', fn() => view('empresa.dashboard'))->name('empresa.dashboard');
-        Route::get('/empresa/crear-oferta', fn() => view('empresa.crear-oferta'))->name('empresa.crear-oferta');
-        });
+        Route::get('/empresa', [EmpresaController::class, 'dashboard'])->name('empresa.dashboard');
+        Route::get('/empresa/crear-empresa', [EmpresaController::class, 'crearEmpresa'])->name('empresa.crear-empresa');
+        Route::post('/empresa/crear-empresa', [EmpresaController::class, 'store'])->name('empresa.store');
+        Route::get('/empresa/crear-oferta', [EmpresaController::class, 'crearOferta'])->name('empresa.crear-oferta');
+    });
     Route::middleware('role:candidato')->group(function () {
         Route::get('/candidato', fn() => view('candidato.dashboard'))->name('candidato.dashboard');
     });

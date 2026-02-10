@@ -24,6 +24,7 @@ class EmpresaController extends Controller
         //Recuperar las ofertas publicadas en activo y el número de candidatos que han aplicado a cada oferta
         $ofertas = auth()->user()->empresa->ofertas()
             ->whereIn('estado', ['publicada', 'pausada'])
+            ->withCount('candidatos') // cuenta el número de candidatos relacionados    
             ->get();
         return view('empresa.dashboard', compact('ofertas'));
     }

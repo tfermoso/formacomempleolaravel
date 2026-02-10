@@ -54,7 +54,22 @@ Route::middleware([
         Route::post('/empresa/crear-oferta', [EmpresaController::class, 'storeOferta'])->name('empresa.storeOferta');
     });
     Route::middleware('role:candidato')->group(function () {
-        Route::get('/candidato', fn() => view('candidato.dashboard'))->name('candidato.dashboard');
+        Route::get('/candidato', [CandidatoController::class, 'dashboard'])->name('candidato.dashboard');
+
+        Route::get('/candidato/crear', [CandidatoController::class, 'create'])->name('candidato.create');
+        Route::post('/candidato', [CandidatoController::class, 'store'])->name('candidato.store');
+
+        Route::get('/candidato/editar', [CandidatoController::class, 'edit'])->name('candidato.edit');
+        Route::put('/candidato', [CandidatoController::class, 'update'])->name('candidato.update');
+
+        // ofertas / inscripciones
+        Route::get('/ofertas', [CandidatoController::class, 'ofertas'])->name('candidato.ofertas');
+        Route::post('/ofertas/{oferta}/inscribirse', [CandidatoController::class, 'inscribirse'])->name('candidato.ofertas.inscribirse');
+
+        Route::get('/mis-candidaturas', [CandidatoController::class, 'misCandidaturas'])->name('candidato.candidaturas');
+        Route::delete('/ofertas/{oferta}/retirar', [CandidatoController::class, 'retirar'])->name('candidato.ofertas.retirar'); // opcional
+
+
     });
 
 

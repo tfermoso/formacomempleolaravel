@@ -58,7 +58,7 @@
                                 <div class="p-4 bg-gray-100 rounded-lg">
                                     <div class="flex justify-between items-center">
                                         <h4 class="text-md font-semibold">{{ $oferta->titulo }}</h4>
-                                        <span class="text-sm text-gray-500">{{ $oferta->candidaturas_count }}
+                                        <span class="text-sm text-gray-500">{{ $oferta->candidatos_count }}
                                             candidaturas</span>
                                     </div>
                                     <p class="text-sm text-gray-600">{{ $oferta->sector->nombre }} -

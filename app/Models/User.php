@@ -69,7 +69,12 @@ class User extends Authenticatable
         ];
     }
     public function empresa()
-{
-    return $this->belongsTo(Empresa::class, 'empresa_id');
-}
+    {
+        return $this->belongsTo(Empresa::class, 'empresa_id');
+    }
+
+    public function candidato()
+    {
+        return $this->hasOne(Candidato::class); 
+    }
 }

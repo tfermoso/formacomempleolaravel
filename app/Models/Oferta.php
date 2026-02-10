@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 
 class Oferta extends Model
 {
@@ -58,8 +60,10 @@ class Oferta extends Model
     {
         return $this->belongsTo(Puesto::class, 'idpuesto');
     }
-    public function candidaturas()
+    public function candidatos(): BelongsToMany
     {
-        return [];
+        return $this->belongsToMany(Candidato::class)
+            ->withPivot(['fecha_inscripcion', 'estado', 'comentarios'])
+            ->withTimestamps();
     }
 }

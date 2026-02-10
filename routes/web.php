@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\CandidatoController;
+use App\Http\Controllers\OfertaController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -46,7 +48,10 @@ Route::middleware([
         Route::get('/empresa', [EmpresaController::class, 'dashboard'])->name('empresa.dashboard');
         Route::get('/empresa/crear-empresa', [EmpresaController::class, 'crearEmpresa'])->name('empresa.crear-empresa');
         Route::post('/empresa/crear-empresa', [EmpresaController::class, 'store'])->name('empresa.store');
+        Route::get('/empresa/editar', [EmpresaController::class, 'edit'])->name('empresa.edit');
+        Route::put('/empresa', [EmpresaController::class, 'update'])->name('empresa.update');
         Route::get('/empresa/crear-oferta', [EmpresaController::class, 'crearOferta'])->name('empresa.crear-oferta');
+        Route::post('/empresa/crear-oferta', [EmpresaController::class, 'storeOferta'])->name('empresa.storeOferta');
     });
     Route::middleware('role:candidato')->group(function () {
         Route::get('/candidato', fn() => view('candidato.dashboard'))->name('candidato.dashboard');

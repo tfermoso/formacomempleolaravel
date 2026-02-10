@@ -58,4 +58,8 @@ class Oferta extends Model
     {
         return $this->belongsTo(Puesto::class, 'idpuesto');
     }
+    public function candidaturas()
+    {
+        return [];
+    }
 }

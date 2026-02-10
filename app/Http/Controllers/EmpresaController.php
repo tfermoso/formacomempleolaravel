@@ -21,8 +21,11 @@ class EmpresaController extends Controller
         if (!auth()->user()->empresa) {
             return redirect()->route('empresa.crear-empresa');
         }
-
-        return view('empresa.dashboard');
+        //Recuperar las ofertas publicadas en activo y el número de candidatos que han aplicado a cada oferta
+        $ofertas = auth()->user()->empresa->ofertas()
+            ->whereIn('estado', ['publicada', 'pausada'])
+            ->get();
+        return view('empresa.dashboard', compact('ofertas'));
     }
 
     public function crearEmpresa()

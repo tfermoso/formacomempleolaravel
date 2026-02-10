@@ -47,4 +47,9 @@ class Empresa extends Model
     return $this->hasMany(User::class, 'empresa_id');
 }
 
+    public function ofertas()
+    {
+        return $this->hasMany(Oferta::class, 'idempresa'); 
+    }
+
 }

@@ -49,4 +49,39 @@
                         </div>
                     </div>
                 </div>
+                <!-- Aquí podríamos añadir una sección con las ofertas publicadas y las candidaturas recibidas -->
+                @if($ofertas->count() > 0)
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-4">Tus ofertas de empleo</h3>
+                        <div class="space-y-4">
+                            @foreach($ofertas as $oferta)
+                                <div class="p-4 bg-gray-100 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="text-md font-semibold">{{ $oferta->titulo }}</h4>
+                                        <span class="text-sm text-gray-500">{{ $oferta->candidaturas_count }}
+                                            candidaturas</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">{{ $oferta->sector->nombre }} -
+                                        {{ $oferta->modalidad->nombre }} - {{ $oferta->puesto->nombre }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-4">Aún no has publicado ninguna oferta de empleo</h3>
+                        <p class="text-sm text-gray-500">
+                            Publica tu primera oferta para empezar a recibir candidaturas de los mejores talentos.
+                        </p>
+                        <a href="{{ route('empresa.crear-oferta') }}"
+                            class="mt-2 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Crear oferta de empleo
+                        </a>
+                    </div>
+                @endif
+
+            </div>
+        </div>
+    </div>
+
 </x-app-layout>

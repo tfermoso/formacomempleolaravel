@@ -55,6 +55,9 @@
                         <h3 class="text-lg font-semibold mb-4">Tus ofertas de empleo</h3>
                         <div class="space-y-4">
                             @foreach($ofertas as $oferta)
+                            <!--Enlace a detalle de oferta, donde se muestran las candidaturas recibidas y se pueden gestionar-->
+                                <a href="{{ route('empresa.ofertas.show', $oferta) }}" class="block p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                                        
                                 <div class="p-4 bg-gray-100 rounded-lg">
                                     <div class="flex justify-between items-center">
                                         <h4 class="text-md font-semibold">{{ $oferta->titulo }}</h4>
@@ -63,10 +66,35 @@
                                     </div>
                                     <p class="text-sm text-gray-600">{{ $oferta->sector->nombre }} -
                                         {{ $oferta->modalidad->nombre }} - {{ $oferta->puesto->nombre }}</p>
+                                     
+                                         
+
                                 </div>
+                                </a>
                             @endforeach
                         </div>
                     </div>
+               <!--mostrar las ofertas en estado borrador-->
+               @if($ofertas->where('estado', 'borrador')->count() > 0)  
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-4">Ofertas en borrador</h3>
+                        <div class="space-y-4">
+                            @foreach($ofertas->where('estado', 'borrador') as $oferta)
+                        <a href="{{ route('empresa.ofertas.show', $oferta) }}" class="block p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                               <div class="p-4 bg-yellow-100 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="text-md font-semibold">{{ $oferta->titulo }}</h4>
+                                        <span class="text-sm text-gray-500">Borrador</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">{{ $oferta->sector->nombre }} -
+                                        {{ $oferta->modalidad->nombre }} - {{ $oferta->puesto->nombre }}</p>
+                                </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 @else
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">Aún no has publicado ninguna oferta de empleo</h3>

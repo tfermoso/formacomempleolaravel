@@ -23,9 +23,11 @@ class EmpresaController extends Controller
         }
         //Recuperar las ofertas publicadas en activo y el número de candidatos que han aplicado a cada oferta
         $ofertas = auth()->user()->empresa->ofertas()
-            ->whereIn('estado', ['publicada', 'pausada'])
+            ->whereIn('estado', ['publicada', 'pausada','borrador'])
             ->withCount('candidatos') // cuenta el número de candidatos relacionados    
             ->get();
+
+
         return view('empresa.dashboard', compact('ofertas'));
     }
 
@@ -111,62 +113,75 @@ class EmpresaController extends Controller
         return view('empresa.edit-empresa', compact('empresa', 'sectores'));
     }
 
-    public function update(Request $request)
+    public function show($id)
     {
-        $empresa = auth()->user()->empresa;
+        // Mostrar los detalles de la oferta con id = $id y los candidatos que han aplicado a esa oferta    
+        $oferta = Oferta::findOrFail($id);
+        //Verificar que la oferta pertenece a la empresa del usuario autenticado
+        if ($oferta->idempresa !== auth()->user()->empresa->id) {
+            abort(403);
+        }
+        $candidatos = $oferta->candidatos()->with('user')->get();
+        return view('empresa.oferta-detalle', compact('oferta', 'candidatos'));
 
-        if (!$empresa) {
-            return redirect()->route('empresa.crear-empresa');
+    }
+
+   public function editOferta($id)
+    {
+        // Lógica para mostrar el formulario de edición de una oferta
+        $oferta = Oferta::findOrFail($id);
+        if ($oferta->idempresa !== auth()->user()->empresa->id) {
+            abort(403);
+        }
+        $sectores = Sector::orderBy('nombre')->get();
+        $modalidades = Modalidad::orderBy('nombre')->get();
+        $puestos = Puesto::orderBy('nombre')->get();
+
+        return view('empresa.editar-oferta', compact('oferta', 'sectores', 'modalidades', 'puestos'));
+    }
+    public function updateOferta(Request $request, $id)
+    {
+        // Lógica para actualizar los datos de la oferta
+        $oferta = Oferta::findOrFail($id);
+        if ($oferta->idempresa !== auth()->user()->empresa->id) {
+            abort(403);
         }
 
         $validated = $request->validate([
-            'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif,' . $empresa->id],
-            'nombre' => ['required', 'string', 'max:255'],
-            'telefono' => ['nullable', 'string', 'max:30'],
-            'web' => ['nullable', 'url', 'max:255'],
-            'persona_contacto' => ['nullable', 'string', 'max:255'],
-            'email_contacto' => ['nullable', 'email', 'max:255'],
-            'direccion' => ['nullable', 'string', 'max:255'],
-            'cp' => ['nullable', 'string', 'max:10'],
-            'ciudad' => ['nullable', 'string', 'max:100'],
-            'provincia' => ['nullable', 'string', 'max:100'],
+            'idsector' => ['required', 'exists:sectores,id'],
+            'idmodalidad' => ['required', 'exists:modalidad,id'], // tu FK apunta a "modalidad"
+            'idpuesto' => ['required', 'exists:puestos,id'],
 
-            'sectores' => ['nullable', 'array'],
-            'sectores.*' => ['integer', 'exists:sectores,id'],
+            'titulo' => ['required', 'string', 'max:200'],
+            'descripcion' => ['required', 'string'],
+            'requisitos' => ['nullable', 'string'],
+            'funciones' => ['nullable', 'string'],
 
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'salario_min' => ['nullable', 'numeric', 'min:0'],
+            'salario_max' => ['nullable', 'numeric', 'min:0'],
+
+            'tipo_contrato' => ['nullable', 'string', 'max:100'],
+            'jornada' => ['nullable', 'string', 'max:100'],
+            'ubicacion' => ['nullable', 'string', 'max:150'],
+
+            // fechas
+            // ... (resto de validaciones de fechas)
         ]);
 
-        DB::transaction(function () use ($request, $empresa, $validated) {
-
-            // Logo nuevo: borrar el anterior y guardar el nuevo
-            if ($request->hasFile('logo')) {
-                if ($empresa->logo) {
-                    Storage::disk('public')->delete($empresa->logo);
-                }
-                $empresa->logo = $request->file('logo')->store('empresas/logos', 'public');
+        // regla extra: salario_max >= salario_min si ambos vienen
+        if (!is_null($validated['salario_min'] ?? null) && !is_null($validated['salario_max'] ?? null)) {
+            if ((float) $validated['salario_max'] < (float) $validated['salario_min']) {
+                return back()
+                    ->withErrors(['salario_max' => trans('validation.min.numeric')])
+                    ->withInput();
             }
+        }
 
-            $empresa->fill([
-                'cif' => $validated['cif'],
-                'nombre' => $validated['nombre'],
-                'telefono' => $validated['telefono'] ?? null,
-                'web' => $validated['web'] ?? null,
-                'persona_contacto' => $validated['persona_contacto'] ?? null,
-                'email_contacto' => $validated['email_contacto'] ?? null,
-                'direccion' => $validated['direccion'] ?? null,
-                'cp' => $validated['cp'] ?? null,
-                'ciudad' => $validated['ciudad'] ?? null,
-                'provincia' => $validated['provincia'] ?? null,
-            ])->save();
-
-            // sectores
-            $empresa->sectores()->sync($validated['sectores'] ?? []);
-        });
+        $oferta->update($validated);
 
         return redirect()
             ->route('empresa.dashboard')
-            ->with('success', 'Empresa actualizada correctamente.');
+            ->with('success', trans('messages.oferta_actualizada'));        
     }
 
     //Crear oferta, editar oferta, eliminar oferta, etc... (CRUD completo de ofertas)

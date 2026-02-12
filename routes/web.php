@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OfertaCandidatoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EmpresaController;
@@ -52,6 +53,18 @@ Route::middleware([
         Route::put('/empresa', [EmpresaController::class, 'update'])->name('empresa.update');
         Route::get('/empresa/crear-oferta', [EmpresaController::class, 'crearOferta'])->name('empresa.crear-oferta');
         Route::post('/empresa/crear-oferta', [EmpresaController::class, 'storeOferta'])->name('empresa.storeOferta');
+        Route::get('/empresa/ofertas/ver/{oferta}', [EmpresaController::class, 'show'])->name('empresa.ofertas.show');
+        Route::get('/empresa/ofertas/editar/{oferta}', [EmpresaController::class, 'editOferta'])->name('empresa.editOferta');
+        Route::put('/empresa/ofertas/{id}', [EmpresaController::class, 'updateOferta'])
+            ->name('empresa.updateOferta');
+        Route::get('/empresa/candidatos/{candidato}/cv', [OfertaCandidatoController::class, 'downloadCv'])
+            ->name('empresa.candidatos.cv.download');
+
+        // Descargar ZIP con todos los CV de una oferta
+        Route::get('/empresa/ofertas/{oferta}/cvs.zip', [OfertaCandidatoController::class, 'downloadAllCvsZip'])
+            ->name('empresa.ofertas.cvs.zip');
+
+
     });
     Route::middleware('role:candidato')->group(function () {
         Route::get('/candidato', [CandidatoController::class, 'dashboard'])->name('candidato.dashboard');
@@ -65,10 +78,10 @@ Route::middleware([
         // ofertas / inscripciones
         Route::get('/ofertas', [CandidatoController::class, 'ofertas'])->name('candidato.ofertas');
         Route::post('/ofertas/{oferta}/inscribirse', [CandidatoController::class, 'inscribirse'])->name('candidato.ofertas.inscribirse');
-
+        Route::get('/ofertas/{oferta}/ver', [CandidatoController::class, 'show'])->name('candidato.ofertas.show');
         Route::get('/mis-candidaturas', [CandidatoController::class, 'misCandidaturas'])->name('candidato.candidaturas');
         Route::delete('/ofertas/{oferta}/retirar', [CandidatoController::class, 'retirar'])->name('candidato.ofertas.retirar'); // opcional
-
+ 
 
     });
 

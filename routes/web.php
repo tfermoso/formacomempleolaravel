@@ -6,10 +6,16 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\CandidatoController;
 use App\Http\Controllers\OfertaController;
-
+use App\Http\Controllers\Admin\EmpresaController as AdminEmpresaController;
+use App\Http\Controllers\Admin\CandidatoController as AdminCandidatoController;
+use App\Http\Controllers\Admin\OfertaController as AdminOfertaController;
+use App\Models\Oferta;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Si quieres mostrar ofertas recientes en la home, puedes cargar aquí las últimas ofertas activas
+     $ultimasOfertas = Oferta::where('estado', 'publicada')->latest()->take(5)->get();
+     return view('welcome', compact('ultimasOfertas'));
+    
 })->name('welcome');
 
 Route::get('/empresa/register', function () {
@@ -41,9 +47,21 @@ Route::middleware([
     })->name('dashboard');
 
 
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    });
+    Route::middleware('role:admin')
+            ->prefix('admin')
+            ->name('admin.')
+            ->group(function () {
+                Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+                Route::resource('empresas', AdminEmpresaController::class);
+                Route::resource('candidatos', AdminCandidatoController::class);
+                Route::resource('ofertas', AdminOfertaController::class);
+
+                // Acción rápida: cambiar estado oferta (opcional)
+                Route::patch('ofertas/{oferta}/estado', [AdminOfertaController::class, 'cambiarEstado'])
+                    ->name('ofertas.estado');
+            });
+
 
     Route::middleware('role:empresa')->group(function () {
         Route::get('/empresa', [EmpresaController::class, 'dashboard'])->name('empresa.dashboard');
@@ -64,6 +82,12 @@ Route::middleware([
         Route::get('/empresa/ofertas/{oferta}/cvs.zip', [OfertaCandidatoController::class, 'downloadAllCvsZip'])
             ->name('empresa.ofertas.cvs.zip');
 
+        Route::middleware(['auth', 'role:empresa'])
+            ->prefix('empresa')
+            ->group(function () {
+                Route::post('/candidatos/{candidato}/estado', [OfertaCandidatoController::class, 'updateEstado'])
+                    ->name('empresa.candidatos.estado');
+            });
 
     });
     Route::middleware('role:candidato')->group(function () {
@@ -81,7 +105,7 @@ Route::middleware([
         Route::get('/ofertas/{oferta}/ver', [CandidatoController::class, 'show'])->name('candidato.ofertas.show');
         Route::get('/mis-candidaturas', [CandidatoController::class, 'misCandidaturas'])->name('candidato.candidaturas');
         Route::delete('/ofertas/{oferta}/retirar', [CandidatoController::class, 'retirar'])->name('candidato.ofertas.retirar'); // opcional
- 
+
 
     });
 

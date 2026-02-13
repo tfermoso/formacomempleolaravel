@@ -71,4 +71,26 @@ class OfertaCandidatoController extends Controller
 
         return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
     }
+
+    public function updateEstado(Candidato $candidato)
+    {
+        $estado = request('estado');
+
+        if (!in_array($estado, ['revisado', 'preseleccionado', 'entrevista', 'descartado', 'finalista', 'contratado'])) {
+            return response()->json(['error' => 'Estado no válido'], 400);
+        }
+
+        $ofertaId = request('oferta_id');
+        $oferta = Oferta::findOrFail($ofertaId);
+
+        // Verificar que el candidato esté inscrito en la oferta
+        if (!$oferta->candidatos()->where('candidato_id', $candidato->id)->exists()) {
+            return response()->json(['error' => 'El candidato no está inscrito en esta oferta'], 404);
+        }
+
+        // Actualizar el estado en la tabla pivote
+        $oferta->candidatos()->updateExistingPivot($candidato->id, ['estado' => $estado]);
+
+        return response()->json(['success' => 'Estado actualizado correctamente']);
+    }
 }
